@@ -58,7 +58,7 @@
             console.log("\x1b[32m testeando consistencia DB " + db + " \x1b[0m");
             con.query("SHOW Databases LIKE '" + db + "'", function (err, record) {
                 //var _command = 'mysql -u' + resp.user + ' -p' + resp.password + ' -h' + resp.host + ' -D' + db + '< ' + app.path.normalize(__dirname + '/../sqlfiles/' + options.Command.toLowerCase() + '/CREATE_FULL_' + options.Command + '.sql')
-                var _command = 'mysql -u root -p' + resp.password + ' -h' + resp.host + '< ' + app.path.normalize(__dirname + '/../sqlfiles/' + options.Command.toLowerCase() + '/CREATE_FULL_' + options.Command + '.sql')
+                var _command = 'mysql -u root -p' + resp.password + ' -h' + resp.host + ' < ' + app.path.normalize(__dirname + '/../sqlfiles/' + options.Command.toLowerCase() + '/CREATE_FULL_' + options.Command + '.sql')
 
                 if (record.length == 0) {
                     con.query("CREATE DATABASE IF NOT EXISTS " + db, function (err, result) {
@@ -104,7 +104,7 @@
 
                             _cb = callback 
                             app.inquirer.prompt([
-                                        { type: 'input', name: 'host', message: 'mysql ' + options.Command + ' IP', default: 'localhost' },
+                                        { type: 'input', name: 'host', message: 'mysql ' + options.Command + ' IP', default: '127.0.0.1' },
                                         { type: 'input', name: 'user', message: 'mysql ' + options.Command + ' user', default: 'root' },
                                         { type: 'password', name: 'password', message: 'mysql ' + options.Command + ' password' }
 
