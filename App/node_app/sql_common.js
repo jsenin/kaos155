@@ -1,23 +1,18 @@
-﻿module.exports = function (app, callback) {
-    var _ = app._
-    callback({
+﻿
+const fs = require('fs');
+const path = require('path');
+const mysql = require('mysql');
 
-        poolSql: [],
-        // createfistConnect: function (options, type, callback, test) {
-        //     debugger
-        // },
-        getConnect: function (options, type, callback, test) {
-            _this = this
+let getConnect = function (options, type, callback, test) {
             var _exit = function (options, type, callback, test) {
                 callback(options, test)
             }
             if (this.poolSql[type] != null) {
                 if (options.SQL.db == null) {
                     this.poolSql[type].getConnection(function (err, connection) {
-                        // connected! (unless `err` is set)
                         if (err == null) {
                             console.log('new connection ' + options.Command + ' mysql OK')
-                            options.SQL.db = connection // _this.connection[type] = connection
+                            options.SQL.db = connection
                             _exit(options, type, callback)
                         } else {
 
@@ -34,8 +29,9 @@
                 this.init(options, type, callback)
             }
 
-        },
-        mysqlCommand: function (_command, db, callback,close) {
+        }
+
+let subProcessService = function (_command, db, callback,close) {
             const cp = require('child_process');
             cp.exec(_command, (error, stdout, stderr) => {
                 if (error) {
@@ -52,8 +48,10 @@
                     //})
                 }
             });
-        },
-        testDB: function (options, con, resp, db, callback, close) {
+        }
+
+
+let testDB = function (options, con, resp, db, callback, close) {
             var _this = this
             console.log("\x1b[32m testeando consistencia DB " + db + " \x1b[0m");
             con.query("SHOW Databases LIKE '" + db + "'", function (err, record) {
@@ -63,13 +61,13 @@
                 if (record.length == 0) {
                     con.query("CREATE DATABASE IF NOT EXISTS " + db, function (err, result) {
                         console.log("\x1b[32m BASE DE DATOS \x1b[0m" + db + "\x1b[32m CREADA VACIA OK \x1b[0m");
-                        _this.mysqlCommand(_command, db, callback,close)
+                        _this.subprocessService(_command, db, callback,close)
                     })
                 } else {
                     var queryTables = "SELECT COUNT(*) as total FROM information_schema.tables WHERE table_schema = '" + db + "';"
                     con.query(queryTables, function (err, record) {
                         if (record[0].total < 3) {
-                            _this.mysqlCommand(_command, db, callback,close)
+                            _this.subprocessService(_command, db, callback,close)
                         } else {
                             callback()
                         }
@@ -77,14 +75,16 @@
 
                 }
             })
-        },
-        init: function (options, type, _file, callback) {
+        }
+
+
+let init = function (options, type, _file, callback) {
             var _this = this
             _this.encryptor = require('simple-encryptor')("bbdd_kaos155_text")
 
             if (process.env['KAOS_MYSQL_' + options.Command + '_PASS']) {
 
-                _this.poolSql[type] = app.mysql.createPool({
+                _this.poolSql[type] = mysql.createPool({
                     host: process.env['KAOS_MYSQL_' + options.Command + '_HOST'],
                     user: process.env['KAOS_MYSQL_' + options.Command + '_USER'],
                     password: process.env['KAOS_MYSQL_' + options.Command + '_PASS'],
@@ -97,7 +97,7 @@
 
             } else {
 
-                app.fs.readFile(app.path.normalize('sqlfiles/x_' + _file + '.json'), function (err, _JSON) {
+                fs.readFile(path.normalize('sqlfiles/x_' + _file + '.json'), function (err, _JSON) {
                     _cb = null
                     if (err) {
                         testIp = function (testIp, callback) {
@@ -112,7 +112,7 @@
 
                                 var db = "bbdd_kaos155" + (options.Command == 'SCRAP' ? '_text' : '')
 
-                                var con = app.mysql.createConnection({
+                                var con = mysql.createConnection({
                                     host: resp.host,
                                     user: resp.user,
                                     password: resp.password,
@@ -148,7 +148,7 @@
                         }
                         testIp(testIp, function (credenciales) {
 
-                            _this.poolSql[type] = app.mysql.createPool({
+                            _this.poolSql[type] = mysql.createPool({
                                 host: credenciales.host, //_sql.mySQL.host, //, //'localhost', //'66.70.184.214',
                                 user: credenciales.user, // _sql.mySQL.user,
                                 password: _this.encryptor.decrypt(credenciales.password),
@@ -171,7 +171,7 @@
 
                         if (_this.poolSql[type] == null) {
 
-                            _this.poolSql[type] = app.mysql.createPool({
+                            _this.poolSql[type] = mysql.createPool({
                                 host: _sql.host,
                                 user: _sql.user,
                                 password: _this.encryptor.decrypt(_sql.password),
@@ -190,8 +190,12 @@
                 })
             }
             //return options
-        },
-        SQL: {
+        }
+
+
+let buildSQLGODObject = function(app) {
+  return {
+  
             commands: {
                 create: function (cadsql, db, callback) {
                     db.query(cadsql, function (err, results) {
@@ -420,7 +424,20 @@
                     })
                 })
             }
-        }
+        };
 
-    })
 }
+module.exports = function (app, callback) {
+  var _ = app._
+  var persistenceService = {
+          poolSql: [],
+          getConnect: getConnect,
+          subprocessService: subProcessService,
+          testDB: testDB,
+          init: init ,
+          SQL: buildSQLGODObject(app)
+      }
+  callback(persistenceService)
+}
+
+

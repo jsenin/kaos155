@@ -10,18 +10,17 @@ var App = {
     inquirer: require('inquirer'),
 }
 
-require('./node_app/sql_common.js')(App, function (SQL) {
-    SQL.init({ SQL: { db: null }, Command: 'PARSER' }, 'PARSER', 'ACCESO_mysql_PARSER', function (options) {
-        var www = App.express();
-        var server = App.http.createServer(www).listen(80);
 
-        www.get('/css/*', function (req, res) {
-            res.sendFile(__dirname + '/www/public/' + req.url);
-        })
-        www.get('/js/*', function (req, res) {
-            res.sendFile(__dirname + '/www/public/' + req.url);
-        })
-        www.get('/tree/*', function (req, res) {
+var relanciones_controller = function (req, res) {
+            //debugger
+            var _key = req.path.split("/")[req.path.split("/").length - 1]
+            options.SQL.db.query("SELECT * FROM borme_tree where _key = ? ", [_key], function (err, record) {
+                if(record.length>0)
+                    res.send(record[0]._tree)
+            })
+        }
+
+var tree_controller = function (req, res) {
             var file = __dirname + '/node_www/www/tree.html'
             App.fs.readFile(file, function (err, data) {
 
@@ -29,14 +28,29 @@ require('./node_app/sql_common.js')(App, function (SQL) {
                 res.send(data)
 
             })
-        });
-        www.get('/relaciones/*', function (req, res) {
-            //debugger
-            var _key = req.path.split("/")[req.path.split("/").length - 1]
-            options.SQL.db.query("SELECT * FROM borme_tree where _key = ? ", [_key], function (err, record) {
-                if(record.length>0)
-                    res.send(record[0]._tree)
-            })
-        });
-    })
-})
+        }
+
+var initalize_webserver = function (options) {
+        var express_server = App.express();
+        var server_port = 8080
+        var server = App.http.createServer(express_server).listen(server_port);
+
+        express_server.get('/css/*', function (req, res) {
+            res.sendFile(__dirname + '/www/public/' + req.url);
+        })
+        express_server.get('/js/*', function (req, res) {
+            res.sendFile(__dirname + '/www/public/' + req.url);
+        })
+        express_server.get('/tree/*', tree_controller );
+        express_server.get('/relaciones/*', relanciones_controller );
+    }
+
+
+var initalize_sql_and_then_webserver = function (SQL) {
+    var persistenceService = {SQL: { db: null }, Command: 'PARSER' };
+    var action = 'PARSER' ;
+    var a_file_for_something = 'ACCESO_mysql_PARSER'
+    SQL.init(persistenceService, action, a_file_for_something, initalize_webserver)
+}
+
+require('./node_app/sql_common.js')(App, initalize_sql_and_then_webserver);
