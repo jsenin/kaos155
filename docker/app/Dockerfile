@@ -11,16 +11,17 @@ RUN mkdir -p /src \
   && cd .. \
   && rm -r xpdf-tools-linux-4.00.tar.gz xpdf-tools-linux-4.00
 
-ENV KAOS_COMMIT="master"
+#ENV KAOS_COMMIT="master"
+#RUN git clone -b ${KAOS_COMMIT} https://github.com/Ingobernable/kaos155 /src
 
-RUN git clone -b ${KAOS_COMMIT} https://github.com/Ingobernable/kaos155 /src
 WORKDIR /src/App
 RUN npm install
 
-ENV KAOS_MYSQL_SCRAP_PASS="password" \
-    KAOS_MYSQL_SCRAP_USER="kaos" \
-    KAOS_MYSQL_SCRAP_HOST="kaos_db" \
-    KAOS_MYSQL_SCRAP_DB="bbdd_kaos155_text"
+# usar env_files
+#ENV KAOS_MYSQL_SCRAP_PASS="password" \
+#    KAOS_MYSQL_SCRAP_USER="kaos" \
+#    KAOS_MYSQL_SCRAP_HOST="database" \
+#    KAOS_MYSQL_SCRAP_DB="bbdd_kaos155_text"
 
 
-CMD node app.js SCRAP BOE 2011
+CMD node app.js SCRAP BOE 2018

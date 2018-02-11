@@ -1,17 +1,19 @@
 version: '3.3'
 services:
+
   database:
     build:
       context: .
       dockerfile: ./docker/database/Dockerfile
     restart: always
-# uncomment this for persistent data
-    # volumes:
-    #   - kaos_db:/var/lib/mysql
+    volumes:
+       - kaos_db:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_USER: kaos
       MYSQL_PASSWORD: password
+    ports:
+      - 3306:3306
 
   app:
     build:
@@ -30,13 +32,14 @@ services:
       KAOS_MYSQL_SCRAP_PASS: password
       KAOS_MYSQL_SCRAP_USER: kaos
       KAOS_MYSQL_SCRAP_HOST: database
-    command: node app.js SCRAP BOE 2011
+      KAOS_MYSQL_SCRAP_DB: bbdd_kaos155_text
+      #command: node app.js SCRAP BOE 2011
 # uncomment this for a develop environment:
-    # volumes:
-    # - ./local/path:/src
-    # ports:
-    # - 9228:9228
-    # command: node --inspect app.js
+    volumes:
+      - ./:/src
+    ports:
+      - 9228:9228
+        #command: node --inspect app.js
 
 volumes:
   kaos_db:
