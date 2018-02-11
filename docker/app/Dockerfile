@@ -1,7 +1,7 @@
 FROM node
 RUN mkdir -p /src \
   && cd /opt \
-  && wget http://www.xpdfreader.com/dl/xpdf-tools-linux-4.00.tar.gz \
+  && wget https://xpdfreader-dl.s3.amazonaws.com/xpdf-tools-linux-4.00.tar.gz \ 
   && tar xfvz xpdf-tools-linux-4.00.tar.gz \
   && cd xpdf-tools-linux-4.00 \
   && cp -pRv bin64/* /usr/local/bin/ \
