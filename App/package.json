@@ -6,6 +6,11 @@
   "author": {
     "name": "INGOBERLAB"
   },
+  "scripts": {
+    "start:scrap": "node app_scrap.js",
+    "start:parser": "node app_parser.js",
+    "start:create": "node app_create.js"
+  },
   "dependencies": {
     "aguid": "^2.0.0",
     "cheerio": "^1.0.0-rc.2",
@@ -28,5 +33,12 @@
     "socket.io": "^2.0.4",
     "urlencode": "^1.1.0",
     "xmldom": "^0.1.27"
+  },
+  "devDependencies": {
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^6.0.0",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1"
   }
 }
