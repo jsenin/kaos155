@@ -1,6 +1,6 @@
 var Version = '0.1.4'
 
-require('./node_app/custom_strings');
+const String = require('./node_app/custom_strings');
 
 
 console.log('kaos155 App SCRAP - version -' + Version + '.')
